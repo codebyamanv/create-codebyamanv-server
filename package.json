@@ -1,0 +1,25 @@
+{
+    "name": "create-codebyamanv-server",
+    "version": "1.0.6",
+    "license": "MIT",
+    "bin": {
+        "create-codebyamanv-server": "index.js"
+    },
+    "type": "module",
+    "keywords": [
+        "nodejs",
+        "nodejs-app",
+        "create-app",
+        "scaffolding",
+        "cli"
+    ],
+    "files": [
+        "index.js",
+        "templates/"
+    ],
+    "author": "Aman Verma",
+    "dependencies": {
+        "fs-extra": "^11.3.1",
+        "prompts": "^2.4.2"
+    }
+}
