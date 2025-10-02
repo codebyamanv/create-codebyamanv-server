@@ -1,5 +1,3 @@
-# 🚀 Backend Starter by Aman Verma
-
 Instead of installing with `npm i`, run the CLI directly:
 
 ```bash

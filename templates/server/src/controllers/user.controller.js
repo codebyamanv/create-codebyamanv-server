@@ -4,9 +4,19 @@ import ApiResponse from '../utils/apiResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/errorResponse.js'
 import { generateSessionToken } from '../utils/sessionUtils.js'
+import { loginValidator, registerValidator } from '../validators/authValidator.js'
 
 export const register = asyncHandler(async (req, res) => {
-    const { fullname, email, password } = req.body
+    const { success, data, error } = registerValidator.safeParse(req.body)
+
+    if (!success) {
+        const zodError = JSON.parse(error)
+            .map((err) => err.message)
+            .join(', ')
+        throw new ErrorResponse(zodError, 400, 'ValidationError')
+    }
+
+    const { fullname, email, password } = data
     const user = await User.findOne({ email })
     if (user) {
         throw new ErrorResponse('Email Already registered', 400, 'UserAlreadyExistsError')
@@ -19,12 +29,19 @@ export const register = asyncHandler(async (req, res) => {
     return ApiResponse.created({}, 'User registered successfully').send(res)
 })
 export const login = asyncHandler(async (req, res) => {
-    const { body } = req
-    const user = await User.findOne({ email: body.email.toLowerCase() })
+    const { success, data, error } = loginValidator.safeParse(req.body)
+    if (!success) {
+        const zodError = JSON.parse(error)
+            .map((err) => err.message)
+            .join(', ')
+        throw new ErrorResponse(zodError, 400, 'ValidationError')
+    }
+
+    const user = await User.findOne({ email: data.email })
     if (!user) {
         throw new ErrorResponse('Invalid credentials', 401, 'InvalidCredentialsError')
     }
-    const isPasswordCorrect = await user.isPasswordCorrect(body.password)
+    const isPasswordCorrect = await user.isPasswordCorrect(data.password)
     if (!isPasswordCorrect) {
         throw new ErrorResponse('Invalid credentials', 401, 'InvalidCredentialsError')
     }
