@@ -17,7 +17,8 @@ I have created basic apis for when server starts and for User to understanding t
     "helmet": "^8.1.0",
     "mongoose": "^8.18.1",
     "morgan": "^1.10.1",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "zod": "^4.1.11"
 }
 ```
 
