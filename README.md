@@ -14,6 +14,7 @@ I have created basic apis for when server starts and for User to understanding t
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "helmet": "^8.1.0",
     "mongoose": "^8.18.1",
     "morgan": "^1.10.1",
@@ -33,9 +34,7 @@ If you don’t update the environment variables, the server will throw errors wh
 
 Check the following files:
 
--   `src/middlewares/AuthMiddleware.js`
--   `src/middlewares/globalErrorHandler.js`
--   `src/controllers/user.controller.js`
+-   `src/utils/sessionUtils.js`
 
 In these files, cookies are set/cleared with configuration like:
 
@@ -46,8 +45,12 @@ In these files, cookies are set/cleared with configuration like:
     sameSite: 'none',
     path: '/',
     // domain: 'Enter your domain here',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
 }
 ```
+
+if your backend is on subdomain most likely it will be than use .before domain
+ex: .domain
 
 ## 📩 Contact
 

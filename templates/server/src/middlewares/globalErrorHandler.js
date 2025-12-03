@@ -1,3 +1,5 @@
+import { cookieOptions } from "../utils/sessionUtils.js"
+
 const globalErrorHandler = (err, req, res, next) => {
     let error = { ...err }
     error.message = err.message
@@ -34,26 +36,14 @@ const globalErrorHandler = (err, req, res, next) => {
         const message = 'Your session has expired. Please log in again'
         error = { message, statusCode: 401 }
         // Clear the expired cookie
-        res.clearCookie('sessionToken', {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            path: '/',
-            // domain: 'Enter your domain here',
-        })
+        res.clearCookie('sessionToken', cookieOptions)
     }
 
     if (err.name === 'InvalidSessionError') {
         const message = 'Invalid session. Please log in again'
         error = { message, statusCode: 401 }
         // Clear the invalid cookie
-        res.clearCookie('sessionToken', {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            path: '/',
-            // domain: 'Enter your domain here',
-        })
+        res.clearCookie('sessionToken', cookieOptions)
     }
 
     if (err.name === 'CookieNotFoundError') {

@@ -1,36 +1,44 @@
+import fs from 'fs'
 import multer from 'multer'
 import path from 'path'
-import fs from 'fs'
-
-const uploadDir = 'uploads/'
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true })
-}
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, uploadDir)
+        let uploadFolder = 'uploads/other'
+
+        switch (file.fieldname) {
+            case 'avatar':
+                uploadFolder = 'uploads/avatar'
+                break
+            default:
+                uploadFolder = 'uploads/other'
+        }
+
+        fs.mkdirSync(uploadFolder, { recursive: true })
+
+        cb(null, uploadFolder)
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
-        const ext = path.extname(file.originalname) // safer way
+        const ext = path.extname(file.originalname)
         cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`)
     },
 })
 
-const fileFilter = (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|webp/
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase())
-    const mimetype = allowedTypes.test(file.mimetype)
-
-    if (extname && mimetype) {
-        cb(null, true)
+function fileFilter(req, file, cb) {
+    if (file.fieldname === 'license') {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true)
+        } else {
+            cb(new Error('Only image files are allowed for license uploads!'), false)
+        }
     } else {
-        cb(new Error('Only images (jpeg, jpg, png, webp) are allowed!'))
+        cb(null, true)
     }
 }
 
 export const multerUpload = multer({
     storage,
     fileFilter,
+    // limits: { fileSize: 5 * 1024 * 1024 },
 })
