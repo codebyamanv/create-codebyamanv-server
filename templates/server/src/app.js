@@ -26,6 +26,11 @@ app.use(express.json({ limit: '16kb' }))
 app.use(express.urlencoded({ extended: true }))
 
 // serve static files
+app.use((req, res, next) => {
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin')
+    next()
+})
 app.use('/api/uploads', express.static(path.join(process.cwd(), 'uploads')))
 app.use(cookieParser())
 app.use(
