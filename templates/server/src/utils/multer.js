@@ -1,17 +1,17 @@
-import fs from 'fs'
-import multer from 'multer'
-import path from 'path'
+import fs from "fs"
+import path from "path"
+import multer from "multer"
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        let uploadFolder = 'uploads/other'
+        let uploadFolder = "uploads/other"
 
         switch (file.fieldname) {
-            case 'avatar':
-                uploadFolder = 'uploads/avatar'
+            case "avatar":
+                uploadFolder = "uploads/avatar"
                 break
             default:
-                uploadFolder = 'uploads/other'
+                uploadFolder = "uploads/other"
         }
 
         fs.mkdirSync(uploadFolder, { recursive: true })
@@ -19,18 +19,18 @@ const storage = multer.diskStorage({
         cb(null, uploadFolder)
     },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9)
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
         const ext = path.extname(file.originalname)
         cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`)
     },
 })
 
 function fileFilter(req, file, cb) {
-    if (file.fieldname === 'license') {
-        if (file.mimetype.startsWith('image/')) {
+    if (file.fieldname === "license") {
+        if (file.mimetype.startsWith("image/")) {
             cb(null, true)
         } else {
-            cb(new Error('Only image files are allowed for license uploads!'), false)
+            cb(new Error("Only image files are allowed for license uploads!"), false)
         }
     } else {
         cb(null, true)

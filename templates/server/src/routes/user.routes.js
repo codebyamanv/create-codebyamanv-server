@@ -1,17 +1,20 @@
-import { Router } from 'express'
-import { register, login, logout, currentUser, changeAvatar } from '../controllers/user.controller.js'
-import { accessController } from '../middlewares/AuthMiddleware.js'
-import { multerUpload } from '../utils/multer.js'
+import { Router } from "express"
+
+import { accessController } from "@middlewares/AuthMiddleware.js"
+import { changeAvatar, currentUser, login, logout, register } from "@controllers/user.controller.js"
+import { multerUpload } from "@utils/multer.js"
 
 const userRouter = Router()
-userRouter.route('/').post(register)
-userRouter.get('/current-user', accessController('user', 'admin'), currentUser)
-userRouter.post('/login', login)
-userRouter.patch(
-    '/avatar',
-    accessController('user', 'admin'),
-    multerUpload.single('avatar'),
-    changeAvatar,
-)
-userRouter.post('/logout', accessController('user', 'admin'), logout)
+
+// Public Routes
+userRouter.route("/").post(register)
+userRouter.post("/login", login)
+
+// User Only Routes
+
+// Admin and User Routes
+userRouter.use(accessController("user", "admin"))
+userRouter.get("/current-user", currentUser)
+userRouter.patch("/avatar", multerUpload.single("avatar"), changeAvatar)
+userRouter.post("/logout", logout)
 export default userRouter

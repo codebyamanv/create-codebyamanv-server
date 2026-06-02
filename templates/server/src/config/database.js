@@ -1,12 +1,14 @@
-import mongoose from 'mongoose'
-import { ENV } from './env.js'
+import { log } from "node:console"
+import mongoose from "mongoose"
+
+import { ENV } from "@config/env.js"
 
 const connectDatabase = async () => {
     try {
         const connectionInstance = await mongoose.connect(`${ENV.mongo_uri}`)
-        console.log(`\n mongodb connected !! DB HOST: ${connectionInstance.connection.host}`)
+        log(`\n mongodb connected !! DB HOST: ${connectionInstance.connection.host}`)
     } catch (error) {
-        console.log('Mongodb connection FAILED ', error)
+        log("Mongodb connection FAILED ", error)
         process.exit(1)
     }
 }

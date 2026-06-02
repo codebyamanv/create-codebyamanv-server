@@ -2,10 +2,10 @@
     "name": "server",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "src/index.js",
     "scripts": {
-        "dev": "nodemon src/index.js",
-        "start": "node src/index.js"
+        "dev": "nodemon --import module-alias/register src/index.js",
+        "start": "node --import module-alias/register src/index.js"
     },
     "keywords": [],
     "author": "Aman Verma",
@@ -14,17 +14,36 @@
     "dependencies": {
         "bcrypt": "^6.0.0",
         "cookie-parser": "^1.4.7",
-        "cors": "^2.8.5",
-        "dotenv": "^17.2.3",
-        "express": "^5.1.0",
-        "express-rate-limit": "^8.2.1",
-        "helmet": "^8.1.0",
-        "mongoose": "^8.18.1",
-        "morgan": "^1.10.1",
-        "multer": "^2.0.2",
-        "zod": "^4.1.11"
+        "cors": "^2.8.6",
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1",
+        "express-rate-limit": "^8.5.2",
+        "geoip-lite": "^2.0.2",
+        "helmet": "^8.2.0",
+        "module-alias": "^2.3.4",
+        "mongoose": "^8.24.0",
+        "morgan": "^1.11.0",
+        "multer": "^2.1.1",
+        "ua-parser-js": "^2.0.10",
+        "zod": "^4.4.3"
     },
     "devDependencies": {
-        "nodemon": "^3.1.11"
+        "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+        "@types/express": "^5.0.6",
+        "@types/node": "^25.9.1",
+        "nodemon": "^3.1.11",
+        "prettier": "^3.8.3"
+    },
+    "_moduleAliases": {
+        "@": "src",
+        "@config": "src/config",
+        "@models": "src/models",
+        "@middlewares": "src/middlewares",
+        "@controllers": "src/controllers",
+        "@routes": "src/routes",
+        "@helpers": "src/helpers",
+        "@utils": "src/utils",
+        "@services": "src/services",
+        "@validators": "src/validators"
     }
 }

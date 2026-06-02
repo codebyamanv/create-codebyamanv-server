@@ -9,18 +9,32 @@ I have created basic apis for when server starts and for User to understanding t
 ## Packages used
 
 ```js
-{
+dependencies:{
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.2.1",
-    "helmet": "^8.1.0",
-    "mongoose": "^8.18.1",
-    "morgan": "^1.10.1",
-    "multer": "^2.0.2",
-    "zod": "^4.1.11"
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "geoip-lite": "^2.0.2",
+    "helmet": "^8.2.0",
+    "module-alias": "^2.3.4",
+    "mongoose": "^8.24.0",
+    "morgan": "^1.11.0",
+    "multer": "^2.1.1",
+    "ua-parser-js": "^2.0.10",
+    "zod": "^4.4.3"
 }
+
+devDependencies:{
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.9.1",
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.3"
+}
+
+
 ```
 
 ## 🔧 Update Env

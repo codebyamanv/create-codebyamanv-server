@@ -1,0 +1,178 @@
+{
+  "info": {
+    "_postman_id": "b75237c9-7408-40d1-b746-cf3478609726",
+    "name": "npm package",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "28057083"
+  },
+  "item": [
+    {
+      "name": "Login User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"amanverma0428@gmail.com\",\n    \"password\": \"123456\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/users/login",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "users",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Register User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"email\": \"amanverma0428@gmail.com\",\n    \"password\": \"123456\",\n    \"fullname\":\"Aman Verma\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{url}}/users",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/users/logout",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "users",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "view image avatar",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/uploads/avatar/default/avatar.png",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "uploads",
+            "avatar",
+            "default",
+            "avatar.png"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Current User",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{url}}/users/current-user",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "users",
+            "current-user"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Change Avatar",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "avatar",
+              "type": "file",
+              "uuid": "d933a9cc-6409-4da3-b6ef-a0b37cfed755",
+              "src": "postman-cloud:///1efeddb8-c6a9-4270-80c5-d1f678a3f3cc"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{url}}/users/avatar",
+          "host": [
+            "{{url}}"
+          ],
+          "path": [
+            "users",
+            "avatar"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "url",
+      "value": ""
+    }
+  ]
+}

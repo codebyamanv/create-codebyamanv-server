@@ -1,9 +1,9 @@
-import { Router } from 'express'
+import { Router } from "express"
 
 const baseRouter = Router()
 
-baseRouter.get('/', (req, res) => {
-    res.send('Server is running!')
+baseRouter.get("/", (req, res) => {
+    res.send("Server is running!")
 })
 
 export default baseRouter

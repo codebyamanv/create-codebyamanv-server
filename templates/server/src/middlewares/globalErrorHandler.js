@@ -1,63 +1,46 @@
-import { cookieOptions } from "../utils/sessionUtils.js"
+import { ApiResponse } from "@helpers/handlersHelper.js"
+import { cookieOptions } from "@utils/sessionUtils.js"
 
 const globalErrorHandler = (err, req, res, next) => {
-    let error = { ...err }
-    error.message = err.message
+    let statusCode = err.statusCode || 500
+    let message = err.message || "Server Error"
 
-    // Log error for debugging
-    console.error(err)
-
-    // Mongoose bad ObjectId
-    if (err.name === 'CastError') {
-        const message = 'Resource not found'
-        error = { message, statusCode: 404 }
+    // Mongoose errors
+    if (err.name === "CastError") {
+        statusCode = 404
+        message = "Resource not found"
     }
 
-    // Mongoose duplicate key
     if (err.code === 11000) {
-        const message = 'Duplicate field value entered'
-        error = { message, statusCode: 400 }
+        statusCode = 400
+        message = "Duplicate field value entered"
     }
 
-    // Mongoose validation error
-    if (err.name === 'ValidationError') {
-        const message = Object.values(err.errors).map((val) => val.message)
-        error = { message, statusCode: 400 }
+    if (err.name === "ValidationError") {
+        statusCode = 400
+        message = Object.values(err.errors)
+            .map((val) => val.message)
+            .join(", ")
     }
 
-    // Cookie-related errors
-    if (err.name === 'CookieParseError') {
-        const message = 'Invalid cookie format. Please clear cookies and try again'
-        error = { message, statusCode: 400 }
+    if (err.name === "SessionExpiredError") {
+        statusCode = 401
+        message = "Session expired. Please login again"
+        res.clearCookie("sessionToken", cookieOptions)
     }
 
-    // Session/Cookie authentication errors
-    if (err.name === 'SessionExpiredError') {
-        const message = 'Your session has expired. Please log in again'
-        error = { message, statusCode: 401 }
-        // Clear the expired cookie
-        res.clearCookie('sessionToken', cookieOptions)
+    if (err.name === "InvalidSessionError") {
+        statusCode = 401
+        message = "Invalid session. Please login again"
+        res.clearCookie("sessionToken", cookieOptions)
     }
 
-    if (err.name === 'InvalidSessionError') {
-        const message = 'Invalid session. Please log in again'
-        error = { message, statusCode: 401 }
-        // Clear the invalid cookie
-        res.clearCookie('sessionToken', cookieOptions)
+    if (err.name === "CookieNotFoundError") {
+        statusCode = 401
+        message = "Authentication required"
     }
 
-    if (err.name === 'CookieNotFoundError') {
-        const message = 'Authentication required. Please log in'
-        error = { message, statusCode: 401 }
-    }
-
-    res.status(error.statusCode || 500).json({
-        success: false,
-        error: {
-            message: error.message || 'Server Error',
-            ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-        },
-    })
+    return ApiResponse.internalServerError(message, statusCode).send(res)
 }
 
 export default globalErrorHandler

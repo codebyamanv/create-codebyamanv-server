@@ -1,12 +1,16 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import Session from '../models/session.model.js'
-import User from '../models/user.model.js'
-import ApiResponse from '../utils/apiResponse.js'
-import asyncHandler from '../utils/asyncHandler.js'
-import ErrorResponse from '../utils/errorResponse.js'
-import { cookieOptions, generateSessionToken } from '../utils/sessionUtils.js'
-import { loginValidator, registerValidator } from '../validators/authValidator.js'
+import { log } from "node:console"
+import fs from "node:fs"
+import path from "node:path"
+import geoip from "geoip-lite"
+import { UAParser } from "ua-parser-js"
+
+import Session from "@models/session.model.js"
+import User from "@models/user.model.js"
+import ApiResponse from "@utils/apiResponse.js"
+import asyncHandler from "@utils/asyncHandler.js"
+import ErrorResponse from "@utils/errorResponse.js"
+import { cookieOptions, generateSessionToken } from "@utils/sessionUtils.js"
+import { loginValidator, registerValidator } from "@validators/authValidator.js"
 
 export const register = asyncHandler(async (req, res) => {
     const { success, data, error } = registerValidator.safeParse(req.body)
@@ -14,55 +18,103 @@ export const register = asyncHandler(async (req, res) => {
     if (!success) {
         const zodError = JSON.parse(error)
             .map((err) => err.message)
-            .join(', ')
-        throw new ErrorResponse(zodError, 400, 'ValidationError')
+            .join(", ")
+        throw new ErrorResponse(zodError, 400)
     }
 
     const { fullname, email, password } = data
     const user = await User.findOne({ email })
     if (user) {
-        throw new ErrorResponse('Email Already registered', 400, 'UserAlreadyExistsError')
+        throw new ErrorResponse("Email Already registered", 400)
     }
     await User.create({
         fullname,
         email,
         password,
     })
-    return ApiResponse.created({}, 'User registered successfully').send(res)
+    return ApiResponse.created({}, "User registered successfully").send(res)
 })
 export const login = asyncHandler(async (req, res) => {
     const { success, data, error } = loginValidator.safeParse(req.body)
     if (!success) {
         const zodError = JSON.parse(error)
             .map((err) => err.message)
-            .join(', ')
-        throw new ErrorResponse(zodError, 400, 'ValidationError')
+            .join(", ")
+        throw new ErrorResponse(zodError, 400)
     }
 
     const user = await User.findOne({ email: data.email })
     if (!user) {
-        throw new ErrorResponse('Invalid credentials', 401, 'InvalidCredentialsError')
+        throw new ErrorResponse("Invalid credentials", 401)
     }
     const isPasswordCorrect = await user.isPasswordCorrect(data.password)
     if (!isPasswordCorrect) {
-        throw new ErrorResponse('Invalid credentials', 401, 'InvalidCredentialsError')
+        throw new ErrorResponse("Invalid credentials", 401)
     }
 
     const sessionToken = generateSessionToken()
 
-    // delete all sessions except the current one
-    const allSessions = await Session.find({ userId: user._id })
-    if (allSessions.length > 1) {
-        await allSessions[0].deleteOne()
+    // Get IP
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress
+
+    // Parse device info
+    const parser = new UAParser(req.headers["user-agent"])
+    const ua = parser.getResult()
+
+    const device = ua.device.type || "desktop"
+    const browser = ua.browser.name
+    const os = ua.os.name
+
+    // Geo lookup
+    const geo = geoip.lookup(ip)
+    log(geo)
+
+    // Optional: limit sessions (max 3)
+    const MAX_SESSIONS = 3
+    const sessions = await Session.find({ userId: user._id, isRevoked: false }).sort({ createdAt: 1 })
+
+    if (sessions.length >= MAX_SESSIONS) {
+        const oldest = sessions[0]
+        await Session.updateOne(
+            { _id: oldest._id },
+            {
+                isRevoked: true,
+                revokedAt: new Date(),
+                revokeReason: "max_sessions_limit",
+            }
+        )
     }
+
+    // Create session (DO NOT delete all)
     await Session.create({
         userId: user._id,
         token: sessionToken,
+
+        ipAddress: ip,
+
+        location: geo
+            ? {
+                  country: geo.country,
+                  region: geo.region,
+                  city: geo.city,
+                  lat: geo.ll?.[0],
+                  lon: geo.ll?.[1],
+              }
+            : {},
+
+        userAgent: req.headers["user-agent"],
+        device,
+        browser,
+        os,
+
+        lastActiveAt: new Date(),
+
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     })
-    res.cookie('sessionToken', sessionToken, cookieOptions)
 
-    return ApiResponse.success({ sessionToken }, 'Login successful').send(res)
+    res.cookie("sessionToken", sessionToken, cookieOptions)
+
+    return ApiResponse.success({ sessionToken }, "Login successful").send(res)
 })
 
 export const currentUser = asyncHandler(async (req, res) => {
@@ -71,22 +123,30 @@ export const currentUser = asyncHandler(async (req, res) => {
 
 export const logout = asyncHandler(async (req, res) => {
     const sessionToken = req.cookies.sessionToken
-    await Session.deleteOne({ token: sessionToken })
-    res.clearCookie('sessionToken', cookieOptions)
-    return ApiResponse.success({}, 'Logout successful').send(res)
+    if (sessionToken) {
+        await Session.updateOne(
+            { token: sessionToken },
+            {
+                isRevoked: true,
+                revokedAt: new Date(),
+                revokeReason: "logout",
+            }
+        )
+    }
+    res.clearCookie("sessionToken", cookieOptions)
+    return ApiResponse.success({}, "Logout successful").send(res)
 })
-
 export const changeAvatar = asyncHandler(async (req, res) => {
     const file = req.file
-    const avatar = file.path.replace(/\\/g, '/')
+    const avatar = file.path.replace(/\\/g, "/")
 
     const user = await User.findById(req.user._id)
     if (!user) {
-        throw new ErrorResponse('User not found', 404, 'UserNotFoundError')
+        throw new ErrorResponse("User not found", 404)
     }
 
     if (user.avatar) {
-        const isDefaultAvatar = user.avatar === 'uploads/avatar/default/avatar.png'
+        const isDefaultAvatar = user.avatar === "uploads/avatar/default/avatar.png"
 
         if (!isDefaultAvatar) {
             const imagePath = path.join(process.cwd(), user.avatar)
@@ -96,12 +156,12 @@ export const changeAvatar = asyncHandler(async (req, res) => {
                     fs.unlinkSync(imagePath)
                 }
             } catch (err) {
-                console.error('Error deleting avatar:', err.message)
+                console.error("Error deleting avatar:", err.message)
             }
         }
     }
 
     await User.findByIdAndUpdate(req.user._id, { avatar })
 
-    return ApiResponse.success({}, 'Avatar changed successfully').send(res)
+    return ApiResponse.success({}, "Avatar changed successfully").send(res)
 })
