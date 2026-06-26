@@ -1,75 +1,118 @@
-Instead of installing with `npm i`, run the CLI directly:
+# create-codebyamanv-server
+
+A CLI scaffolding tool that generates a production-ready Express + MongoDB backend in seconds.
 
 ```bash
 npm create codebyamanv-server@latest
 ```
 
-I have created basic apis for when server starts and for User to understanding the how middlewares and utilities working
-
-## Packages used
-
-```js
-dependencies:{
-    "bcrypt": "^6.0.0",
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.5.2",
-    "geoip-lite": "^2.0.2",
-    "helmet": "^8.2.0",
-    "module-alias": "^2.3.4",
-    "mongoose": "^8.24.0",
-    "morgan": "^1.11.0",
-    "multer": "^2.1.1",
-    "ua-parser-js": "^2.0.10",
-    "zod": "^4.4.3"
-}
-
-devDependencies:{
-    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
-    "@types/express": "^5.0.6",
-    "@types/node": "^25.9.1",
-    "nodemon": "^3.1.11",
-    "prettier": "^3.8.3"
-}
-
-
-```
-
-## 🔧 Update Env
-
-Make sure to update your **.env** file with your MongoDB connection URL and other required variables.
-If you don’t update the environment variables, the server will throw errors while running.
+> No global install needed. Just run the command above, enter a project name, and you're ready to go.
 
 ---
 
-## 🌐 Domain
+## What you get
 
-Check the following files:
+A fully structured Node.js backend with authentication, session management, file uploads, and all the production hardening already wired up — so you can skip the boilerplate and start building features.
 
--   `src/utils/sessionUtils.js`
+### Included packages
 
-In these files, cookies are set/cleared with configuration like:
+| Package | Purpose |
+|---|---|
+| `express` v5 | HTTP server |
+| `mongoose` | MongoDB ODM |
+| `bcrypt` | Password hashing (cost factor 12) |
+| `zod` v4 | Request validation |
+| `helmet` | Security headers |
+| `cors` | Cross-origin resource sharing |
+| `express-rate-limit` | Rate limiting |
+| `morgan` | HTTP request logging |
+| `cookie-parser` | Cookie parsing |
+| `multer` | File / avatar uploads |
+| `ua-parser-js` | Device & browser detection |
+| `geoip-lite` | IP geolocation |
+| `dotenv` | Environment variable loading |
 
-```js
-{
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/',
-    // domain: 'Enter your domain here',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-}
+### What's pre-built
+
+- **User auth** — register, login, logout with secure session tokens
+- **Session management** — per-device sessions, max-session enforcement, TTL auto-expiry via MongoDB index
+- **Role-based access control** — `user` / `admin` roles, middleware-enforced
+- **Avatar upload** — image-only, 5 MB cap, old file auto-deleted on update
+- **Global error handler** — Mongoose errors, Multer errors, and custom `ErrorResponse` all normalised
+- **Structured API responses** — consistent `{ success, statusCode, message, data, timestamp }` envelope
+- **Environment-aware config** — `dev` vs `production` behaviour for cookies, logging, and error messages
+
+---
+
+## Quick start
+
+```bash
+npm create codebyamanv-server@latest
+# → Enter project name: my-api
+
+cd my-api
+npm install
 ```
 
-if your backend is on subdomain most likely it will be than use .before domain
-ex: .domain
+Copy the env file and fill in your values:
 
-## 📩 Contact
+```bash
+# .env is already present — just update MONGO_URI and CORS_ORIGINS
+```
 
-For any queries, suggestions, or contributions, feel free to reach out:
+```bash
+npm run dev
+```
 
--   Name: Aman Verma
--   Email: amanverma0428@gmail.com
--   GitHub: https://github.com/codebyamanv
+The server starts at `http://localhost:8000`.
+
+---
+
+## Generated project structure
+
+```
+my-api/
+├── src/
+│   ├── config/
+│   │   ├── database.js      # Mongoose connection
+│   │   └── env.js           # Env validation + exports
+│   ├── controllers/
+│   │   └── user.controller.js
+│   ├── helpers/             # Re-export barrels (utils, models, routes)
+│   ├── middlewares/
+│   │   ├── AuthMiddleware.js
+│   │   └── globalErrorHandler.js
+│   ├── models/
+│   │   ├── user.model.js
+│   │   └── session.model.js
+│   ├── routes/
+│   │   ├── base.routes.js
+│   │   └── user.routes.js
+│   ├── utils/
+│   │   ├── apiResponse.js
+│   │   ├── asyncHandler.js
+│   │   ├── errorResponse.js
+│   │   ├── multer.js
+│   │   └── sessionUtils.js
+│   ├── validators/
+│   │   └── authValidator.js
+│   ├── app.js
+│   ├── constant.js
+│   └── index.js
+├── uploads/
+│   └── avatar/
+│       └── default/
+│           └── avatar.png
+├── .env
+├── .gitignore
+└── package.json
+```
+
+---
+
+## Contact
+
+- **Author:** Aman Verma
+- **Email:** amanverma0428@gmail.com
+- **GitHub:** [github.com/codebyamanv](https://github.com/codebyamanv)
+- **npm:** [npmjs.com/package/create-codebyamanv-server](https://www.npmjs.com/package/create-codebyamanv-server)

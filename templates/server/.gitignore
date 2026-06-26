@@ -1,2 +1,8 @@
-node_modules
-*.env.*
+node_modules/
+.env
+
+# Keep the default avatar placeholder but ignore all user-uploaded files
+uploads/*
+!uploads/avatar/
+uploads/avatar/*
+!uploads/avatar/default/

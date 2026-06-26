@@ -1,4 +1,5 @@
-import { baseRouter, userRouter } from "@helpers/routeHelper.js"
+import { ENV } from "./config/env.js"
+import { baseRouter, userRouter } from "./helpers/routeHelper.js"
 
 export const routes = [
     { path: "/", router: baseRouter },
@@ -6,7 +7,7 @@ export const routes = [
 ]
 
 export const corsConfig = {
-    origin: [],
+    origin: ENV.corsOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
 }

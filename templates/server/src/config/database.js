@@ -1,7 +1,7 @@
 import { log } from "node:console"
 import mongoose from "mongoose"
 
-import { ENV } from "@config/env.js"
+import { ENV } from "./env.js"
 
 const connectDatabase = async () => {
     try {

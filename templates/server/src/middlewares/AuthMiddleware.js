@@ -1,6 +1,6 @@
-import { asyncHandler, ErrorResponse } from "@helpers/handlersHelper.js"
-import { Session, User } from "@helpers/modelHelper.js"
-import { cookieOptions } from "@utils/sessionUtils.js"
+import { asyncHandler, ErrorResponse } from "../helpers/handlersHelper.js"
+import { Session, User } from "../helpers/modelHelper.js"
+import { cookieOptions } from "../utils/sessionUtils.js"
 
 export const accessController = (...allowedRoles) => {
     return asyncHandler(async (req, res, next) => {

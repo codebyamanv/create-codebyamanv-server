@@ -13,6 +13,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             trim: true,
+            maxlength: [100, "Fullname must be at most 100 characters"],
         },
         fullnameLower: {
             type: String,
@@ -23,6 +24,7 @@ const userSchema = new Schema(
             unique: true,
             lowercase: true,
             trim: true,
+            maxlength: [254, "Email must be at most 254 characters"],
             match: [/^\S+@\S+\.\S+$/, "Invalid email"],
         },
         password: {
@@ -43,10 +45,9 @@ const userSchema = new Schema(
     }
 )
 
-
 // Indexes
 userSchema.index({ fullnameLower: 1 })
-userSchema.index({ status: 1, createdAt: -1 })
+userSchema.index({ createdAt: -1 })
 
 // Hooks
 userSchema.pre("save", async function (next) {

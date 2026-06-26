@@ -1,8 +1,8 @@
 import { Router } from "express"
 
-import { accessController } from "@middlewares/AuthMiddleware.js"
-import { changeAvatar, currentUser, login, logout, register } from "@controllers/user.controller.js"
-import { multerUpload } from "@utils/multer.js"
+import { accessController } from "../middlewares/AuthMiddleware.js"
+import { changeAvatar, currentUser, login, logout, register } from "../controllers/user.controller.js"
+import { multerUpload } from "../utils/multer.js"
 
 const userRouter = Router()
 

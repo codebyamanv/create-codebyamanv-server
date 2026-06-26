@@ -6,28 +6,33 @@ import rateLimit from "express-rate-limit"
 import helmet from "helmet"
 import morgan from "morgan"
 
-import globalErrorHandler from "@middlewares/globalErrorHandler.js"
-import asyncHandler from "@utils/asyncHandler.js"
+import { ENV } from "./config/env.js"
+import globalErrorHandler from "./middlewares/globalErrorHandler.js"
+import asyncHandler from "./utils/asyncHandler.js"
 
 import { corsConfig, routes } from "./constant.js"
 
 const app = express()
 
+// Trust the first proxy hop so req.ip reflects the real client IP
+// Set to the number of trusted proxy hops in your infrastructure (e.g. 1 for a single load balancer)
+app.set("trust proxy", 1)
+
 app.use(cors(corsConfig))
-
 app.use(helmet())
-app.use(morgan("dev"))
+app.use(morgan(ENV.isProduction ? "combined" : "dev"))
+app.use(cookieParser())
 app.use(express.json({ limit: "16kb" }))
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 
-// serve static files
+// Serve static uploads with cross-origin resource policy set for assets
 app.use((req, res, next) => {
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin")
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin")
     next()
 })
 app.use("/api/v1/uploads", express.static(path.join(process.cwd(), "uploads")))
-app.use(cookieParser())
+
 app.use(
     rateLimit({
         windowMs: 15 * 60 * 1000,
@@ -38,28 +43,12 @@ app.use(
     })
 )
 
-// Enable this in production so this will prevent postman or any other client from making too many requests to the server, it allow only browsers to send requests
-
-// app.use((req, res, next) => {
-//     const referer = req.get('Referer')
-//     const origin = req.get('Origin')
-//     console.log({ referer, origin })
-//     const allowedDomains = [
-//         'http://localhost:3000',
-//         'http://localhost:4000',
-//     ]
-//     const isAllowed = allowedDomains.some((domain) => origin?.startsWith(domain) || referer?.startsWith(domain))
-//     if (!isAllowed) {
-//         return res.status(403).json({ message: 'Invalid origin' })
-//     }
-//     next()
-// })
-
 // add routes
 routes.forEach(({ path, router }) => {
     app.use(path, router)
 })
-// global error handler
+
+// 404 handler
 app.all(
     "/*catchAll",
     asyncHandler(async (req, res, next) => {

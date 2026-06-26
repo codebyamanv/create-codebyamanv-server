@@ -21,7 +21,20 @@ async function main() {
     process.exit(1);
   }
 
+  // Prevent path traversal attacks via crafted project names (e.g. "../../etc")
+  const safeName = /^[a-zA-Z0-9_-][a-zA-Z0-9._-]*$/.test(response.projectName);
+  if (!safeName) {
+    console.log("❌ Project name can only contain letters, numbers, hyphens, underscores, and dots.");
+    process.exit(1);
+  }
+
   const targetDir = path.join(process.cwd(), response.projectName);
+  const resolvedTarget = path.resolve(targetDir);
+  const resolvedCwd = path.resolve(process.cwd());
+  if (!resolvedTarget.startsWith(resolvedCwd + path.sep)) {
+    console.log("❌ Invalid project name.");
+    process.exit(1);
+  }
 
   // copy template folder
   const templateDir = path.join(__dirname, "templates", "server");
