@@ -1,6 +1,6 @@
 {
     "name": "create-codebyamanv-server",
-    "version": "1.0.14",
+    "version": "1.0.15",
     "license": "MIT",
     "bin": {
         "create-codebyamanv-server": "index.js"
