@@ -1,4 +1,5 @@
 node_modules/
+dist/
 .env
 
 # Keep the default avatar placeholder but ignore all user-uploaded files

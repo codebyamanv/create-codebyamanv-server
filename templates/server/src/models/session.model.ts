@@ -1,6 +1,33 @@
-import { model, Schema } from "mongoose"
+import { model, Schema, Types } from "mongoose"
 
-const sessionSchema = new Schema(
+export interface ISession {
+    _id: Types.ObjectId
+    userId: Types.ObjectId
+    token: string
+    isRevoked: boolean
+    revokedAt?: Date
+    revokeReason?: string
+    ipAddress?: string
+    location?: {
+        country?: string
+        region?: string
+        city?: string
+        lat?: number
+        lon?: number
+        timezone?: string
+    }
+    userAgent?: string
+    device?: string
+    browser?: string
+    os?: string
+    deviceId?: string
+    lastActiveAt?: Date
+    expiresAt: Date
+    createdAt: Date
+    updatedAt: Date
+}
+
+const sessionSchema = new Schema<ISession>(
     {
         userId: {
             type: Schema.Types.ObjectId,
@@ -8,14 +35,11 @@ const sessionSchema = new Schema(
             required: true,
             index: true,
         },
-
         token: {
             type: String,
             required: true,
             unique: true,
         },
-
-        // Security
         isRevoked: {
             type: Boolean,
             default: false,
@@ -23,14 +47,10 @@ const sessionSchema = new Schema(
         },
         revokedAt: Date,
         revokeReason: String,
-
-        // Network Info
         ipAddress: {
             type: String,
             index: true,
         },
-
-        // Geo Info
         location: {
             country: String,
             region: String,
@@ -39,37 +59,27 @@ const sessionSchema = new Schema(
             lon: Number,
             timezone: String,
         },
-
-        // Device Info
         userAgent: String,
-        device: {
-            type: String,
-        },
+        device: String,
         browser: String,
         os: String,
-
-        // Optional but powerfull
         deviceId: {
             type: String,
             index: true,
         },
-
         lastActiveAt: {
             type: Date,
             default: Date.now,
             index: true,
         },
-
         expiresAt: {
             type: Date,
             required: true,
-            index: { expireAfterSeconds: 0 }, // TTL
+            index: { expireAfterSeconds: 0 }, // TTL — MongoDB auto-deletes expired sessions
         },
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 )
 
-const Session = model("Session", sessionSchema)
+const Session = model<ISession>("Session", sessionSchema)
 export default Session

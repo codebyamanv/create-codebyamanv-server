@@ -1,14 +1,15 @@
 import fs from "fs"
-import multer from "multer"
+import type { Request } from "express"
+import multer, { FileFilterCallback } from "multer"
 
-const ALLOWED_IMAGE_TYPES = new Set([
+const ALLOWED_IMAGE_TYPES = new Set<string>([
     "image/jpeg",
     "image/png",
     "image/gif",
     "image/webp",
 ])
 
-const MIME_TO_EXT = {
+const MIME_TO_EXT: Record<string, string> = {
     "image/jpeg": ".jpg",
     "image/png": ".png",
     "image/gif": ".gif",
@@ -16,7 +17,7 @@ const MIME_TO_EXT = {
 }
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
+    destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
         let uploadFolder = "uploads/other"
 
         switch (file.fieldname) {
@@ -30,20 +31,20 @@ const storage = multer.diskStorage({
         fs.mkdirSync(uploadFolder, { recursive: true })
         cb(null, uploadFolder)
     },
-    filename: function (req, file, cb) {
+    filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
         const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9)
-        // Extension is derived from MIME type, not from the original filename, to prevent extension spoofing
-        const ext = MIME_TO_EXT[file.mimetype] || ".bin"
+        // Extension derived from MIME type, not from originalname, to prevent extension spoofing
+        const ext = MIME_TO_EXT[file.mimetype] ?? ".bin"
         cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`)
     },
 })
 
-function fileFilter(req, file, cb) {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback): void => {
     if (file.fieldname === "avatar" || file.fieldname === "license") {
         if (ALLOWED_IMAGE_TYPES.has(file.mimetype)) {
             cb(null, true)
         } else {
-            cb(new Error("Only JPEG, PNG, GIF, and WebP image files are allowed."), false)
+            cb(new Error("Only JPEG, PNG, GIF, and WebP image files are allowed."))
         }
     } else {
         cb(null, true)

@@ -9,13 +9,12 @@ import morgan from "morgan"
 import { ENV } from "./config/env.js"
 import globalErrorHandler from "./middlewares/globalErrorHandler.js"
 import asyncHandler from "./utils/asyncHandler.js"
-
 import { corsConfig, routes } from "./constant.js"
 
 const app = express()
 
-// Trust the first proxy hop so req.ip reflects the real client IP
-// Set to the number of trusted proxy hops in your infrastructure (e.g. 1 for a single load balancer)
+// Trust the first proxy hop so req.ip reflects the real client IP.
+// Adjust the number to match your infrastructure's proxy hop count.
 app.set("trust proxy", 1)
 
 app.use(cors(corsConfig))
@@ -25,7 +24,7 @@ app.use(cookieParser())
 app.use(express.json({ limit: "16kb" }))
 app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 
-// Serve static uploads with cross-origin resource policy set for assets
+// Serve static uploads with cross-origin resource policy
 app.use((req, res, next) => {
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin")
     res.setHeader("Cross-Origin-Resource-Policy", "cross-origin")
@@ -43,7 +42,7 @@ app.use(
     })
 )
 
-// add routes
+// Register routes
 routes.forEach(({ path, router }) => {
     app.use(path, router)
 })
@@ -53,10 +52,11 @@ app.all(
     "/*catchAll",
     asyncHandler(async (req, res, next) => {
         const error = new Error(`Route ${req.originalUrl} not found`)
-        error.statusCode = 404
+        ;(error as Error & { statusCode: number }).statusCode = 404
         next(error)
     })
 )
 
 app.use(globalErrorHandler)
+
 export { app }

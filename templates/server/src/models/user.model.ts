@@ -1,7 +1,26 @@
 import bcrypt from "bcrypt"
-import { model, Schema } from "mongoose"
+import { model, Model, Schema, Types } from "mongoose"
 
-const userSchema = new Schema(
+export interface IUser {
+    _id: Types.ObjectId
+    role: "user" | "admin"
+    fullname: string
+    fullnameLower?: string
+    email: string
+    password: string
+    avatar: string
+    avatarPath?: string
+    createdAt: Date
+    updatedAt: Date
+}
+
+interface IUserMethods {
+    isPasswordCorrect(password: string): Promise<boolean>
+}
+
+type UserModel = Model<IUser, {}, IUserMethods>
+
+const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     {
         role: {
             type: String,
@@ -40,9 +59,7 @@ const userSchema = new Schema(
             type: String,
         },
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 )
 
 // Indexes
@@ -54,16 +71,15 @@ userSchema.pre("save", async function (next) {
     if (this.isModified("fullname")) {
         this.fullnameLower = this.fullname.toLowerCase()
     }
-
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 12)
     }
     next()
 })
 
-userSchema.methods.isPasswordCorrect = async function (password) {
-    return await bcrypt.compare(password, this.password)
+userSchema.methods.isPasswordCorrect = async function (password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password)
 }
 
-const User = model("User", userSchema)
+const User = model<IUser, UserModel>("User", userSchema)
 export default User
